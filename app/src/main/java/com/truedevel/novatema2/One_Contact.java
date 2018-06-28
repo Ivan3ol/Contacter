@@ -32,8 +32,8 @@ public class One_Contact extends AppCompatActivity {
     String phone;
     String fullname;
     int id_contact,ava;
-    TextView tv1, tv2, tvAdress, tvBirth,tvGroup;
-    ImageView btn_send,btn_call,avatar;
+    TextView tv1, tv2, tvAdress, tvBirth,tvGroup,name_tool;
+    ImageView btn_send,btn_call,avatar,ava_tool;
     public AlertDialog.Builder alert;
     One_Contact x = this;
     Contact old;
@@ -64,7 +64,8 @@ public class One_Contact extends AppCompatActivity {
         tv2 = findViewById(R.id.textViewPhone);
         avatar=findViewById(R.id.avatar);
         avatar.setImageResource(ava);
-
+        ava_tool = findViewById(R.id.avatar_tool);
+        name_tool = findViewById(R.id.name_toolbar);
         tv1.setText(fullname);
         tv2.setText(phone);
         tvAdress.setText(adress);
@@ -76,10 +77,9 @@ public class One_Contact extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setIcon(getDrawable(ava));
-        getSupportActionBar().setTitle(MainActivity.products.get(id_contact).name);
-
-
+        getSupportActionBar().setTitle("");
+        ava_tool.setImageResource(ava);
+        name_tool.setText(fullname);
 
         btn_send = findViewById(R.id.ImageViewSend);
        btn_send.setOnClickListener(new View.OnClickListener() {

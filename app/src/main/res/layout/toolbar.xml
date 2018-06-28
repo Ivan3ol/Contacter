@@ -9,4 +9,18 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
+    <ImageView
+        android:id="@+id/avatar_tool"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_launcher_foreground" />
+
+    <TextView
+        android:id="@+id/name_toolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="Did you know"
+        android:textColor="@android:color/white"
+        android:textSize="24dp" />
 </android.support.v7.widget.Toolbar>
