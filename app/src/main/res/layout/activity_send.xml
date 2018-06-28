@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/root"
+    android:padding="10dip">
+
+    <ImageView
+        android:id="@+id/telega"
+        android:layout_width="40dip"
+        android:layout_height="40dip"
+        android:layout_alignEnd="@+id/Input_layout2"
+        android:layout_below="@+id/Input_layout2"
+        android:layout_gravity="center"
+        android:src="@drawable/telega" />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/Input_layout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/input_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Message" />
+    </android.support.design.widget.TextInputLayout>
+
+</RelativeLayout>
