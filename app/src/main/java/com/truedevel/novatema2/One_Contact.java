@@ -19,11 +19,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -32,16 +35,19 @@ public class One_Contact extends AppCompatActivity {
     String phone;
     String fullname;
     int id_contact,ava;
-    TextView tv1, tv2, tvAdress, tvBirth,tvGroup,name_tool;
-    ImageView btn_send,btn_call,avatar,ava_tool;
+    TextView  tv2, tvAdress, tvBirth,tvGroup,name_tool;
+    ImageView btn_send,btn_call,ava_tool;
     public AlertDialog.Builder alert;
     One_Contact x = this;
     Contact old;
     String new_name,new_phone,date,adress,group;
     EditText message;
-    ArrayList array = new ArrayList();
 
-    //Button  btn_edit,btn_del;
+    ListView messages;
+    ArrayList array = new ArrayList();
+    ArrayList mess = new ArrayList();
+    ArrayAdapter<String> adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,13 +66,16 @@ public class One_Contact extends AppCompatActivity {
         tvAdress = findViewById(R.id.Address);
         tvBirth = findViewById(R.id.Birthday);
         tvGroup = findViewById(R.id.Group);
-        tv1 = findViewById(R.id.textViewName);
+
         tv2 = findViewById(R.id.textViewPhone);
-        avatar=findViewById(R.id.avatar);
-        avatar.setImageResource(ava);
         ava_tool = findViewById(R.id.avatar_tool);
         name_tool = findViewById(R.id.name_toolbar);
-        tv1.setText(fullname);
+
+        messages = findViewById(R.id.messages);
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, mess);
+        messages.setAdapter(adapter);
+
         tv2.setText(phone);
         tvAdress.setText(adress);
         tvBirth.setText(date);
@@ -100,13 +109,16 @@ public class One_Contact extends AppCompatActivity {
                 Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
         startActivity(callIntent);
     }
     void SendMess(String msg) {
         Intent myIntent = new Intent(Intent.ACTION_SEND);
         myIntent.setType("text/plain");
+        mess.add(msg);
+        adapter.notifyDataSetChanged();
         msg = encode(msg);
-        myIntent.putExtra(Intent.EXTRA_TEXT, msg);//
+        myIntent.putExtra(Intent.EXTRA_TEXT, msg);
         startActivity(myIntent);
     }
     static String encode(String s) {

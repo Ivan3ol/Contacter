@@ -1,6 +1,7 @@
 package com.truedevel.novatema2;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
@@ -17,6 +18,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.truedevel.novatema2.room.ContactViewModel;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList groups = new ArrayList();
     BoxAdapter boxAdapter;
     String name,phone;
-
+    ContactViewModel mRoomModule;
     MainActivity x;
     ListView lvMain;
     ImageButton btn_add;
@@ -46,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
         // создаем адаптер
         fillData();
         boxAdapter = new BoxAdapter(this, products);
+
+        mRoomModule = ViewModelProviders.of(this).get(ContactViewModel.class);
+        mRoomModule.getmRepository().insertEndMethod(products);
 
         // настраиваем список
         lvMain = findViewById(R.id.lvMain);
@@ -111,8 +117,9 @@ public class MainActivity extends AppCompatActivity {
                         String ad = input2.getText().toString();
                         String birth = input3.getText().toString();
                         String group = input4.getText().toString();
-
-                        products.add(new Contact(name, phone,ad,birth,group,R.drawable.man_2));
+                        ArrayList ar = new ArrayList();
+                        ar.add(new Contact(name, phone,ad,birth,group,R.drawable.man_2));
+                        mRoomModule.getmRepository().insertEndMethod(ar);
                         boxAdapter.notifyDataSetChanged();
                         Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
                     }
@@ -150,33 +157,33 @@ public class MainActivity extends AppCompatActivity {
 
 
     void fillData() {
+        products.add(new Contact("Product ", "+380930542117","New York","23.03","Friends",R.drawable.boy));
+        products.add(new Contact("Jhon Smith", "+380930542118","Selo","6.09","Relatives",R.drawable.boy_1));
+        products.add(new Contact("David Tenant", "+380930542119","Kyiv","5.15","Classmates",R.drawable.girl));
+        products.add(new Contact("Sergey", "+380930542110","Striy","7.09","Coworkers",R.drawable.girl_1));
+        products.add(new Contact("David ", "+380930542111","Moldova","6.01","Friends",R.drawable.man));
+        products.add(new Contact("Akakiy ", "+380930542112","Moscow","1.01","Coworkers",R.drawable.man_1));
+        products.add(new Contact("Krasava Vashe ", "+380930542113","Minsk","6.5","Classmates",R.drawable.man_2));
+        products.add(new Contact("Chotkiy paza ", "+380930542114","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
+        products.add(new Contact("Narmalno ", "+380930542115","Drogobich","4.11","Friends",R.drawable.man_4));
         products.add(new Contact("Product ", "+380930542116","New York","23.03","Friends",R.drawable.boy));
-        products.add(new Contact("Jhon Smith", "+380930542116","Selo","6.09","Relatives",R.drawable.boy_1));
-        products.add(new Contact("David Tenant", "+380930542116","Kyiv","5.15","Classmates",R.drawable.girl));
-        products.add(new Contact("Sergey", "+380930542116","Striy","7.09","Coworkers",R.drawable.girl_1));
-        products.add(new Contact("David ", "+380930542116","Moldova","6.01","Friends",R.drawable.man));
-        products.add(new Contact("Akakiy ", "+380930542116","Moscow","1.01","Coworkers",R.drawable.man_1));
-        products.add(new Contact("Krasava Vashe ", "+380930542116","Minsk","6.5","Classmates",R.drawable.man_2));
-        products.add(new Contact("Chotkiy paza ", "+380930542116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
-        products.add(new Contact("Narmalno ", "+380930542116","Drogobich","4.11","Friends",R.drawable.man_4));
-        products.add(new Contact("Product ", "+380930542116","New York","23.03","Friends",R.drawable.boy));
-        products.add(new Contact("Jhon Smith", "+380930542116","Selo","6.09","Relatives",R.drawable.boy_1));
-        products.add(new Contact("David Tenant", "+380930542116","Kyiv","5.15","Classmates",R.drawable.girl));
-        products.add(new Contact("Sergey", "+380930542116","Striy","7.09","Coworkers",R.drawable.girl_1));
-        products.add(new Contact("David ", "+380930542116","Moldova","6.01","Friends",R.drawable.man));
-        products.add(new Contact("Akakiy ", "+380930542116","Moscow","1.01","Coworkers",R.drawable.man_1));
-        products.add(new Contact("Krasava Vashe ", "+380930542116","Minsk","6.5","Classmates",R.drawable.man_2));
-        products.add(new Contact("Chotkiy paza ", "+380930542116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
-        products.add(new Contact("Narmalno ", "+380930542116","Drogobich","4.11","Friends",R.drawable.man_4));
-        products.add(new Contact("Product ", "+380930542116","New York","23.03","Friends",R.drawable.boy));
-        products.add(new Contact("Jhon Smith", "+380930542116","Selo","6.09","Relatives",R.drawable.boy_1));
-        products.add(new Contact("David Tenant", "+380930542116","Kyiv","5.15","Classmates",R.drawable.girl));
-        products.add(new Contact("Sergey", "+380930542116","Striy","7.09","Coworkers",R.drawable.girl_1));
-        products.add(new Contact("David ", "+380930542116","Moldova","6.01","Friends",R.drawable.man));
-        products.add(new Contact("Akakiy ", "+380930542116","Moscow","1.01","Coworkers",R.drawable.man_1));
-        products.add(new Contact("Krasava Vashe ", "+380930542116","Minsk","6.5","Classmates",R.drawable.man_2));
-        products.add(new Contact("Chotkiy paza ", "+380930542116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
-        products.add(new Contact("Narmalno ", "+380930542116","Drogobich","4.11","Friends",R.drawable.man_4));
+        products.add(new Contact("Jhon Smith", "+380930542126","Selo","6.09","Relatives",R.drawable.boy_1));
+        products.add(new Contact("David Tenant", "+380930542136","Kyiv","5.15","Classmates",R.drawable.girl));
+        products.add(new Contact("Sergey", "+380930542146","Striy","7.09","Coworkers",R.drawable.girl_1));
+        products.add(new Contact("David ", "+380930542156","Moldova","6.01","Friends",R.drawable.man));
+        products.add(new Contact("Akakiy ", "+380930542616","Moscow","1.01","Coworkers",R.drawable.man_1));
+        products.add(new Contact("Krasava Vashe ", "+380930742116","Minsk","6.5","Classmates",R.drawable.man_2));
+        products.add(new Contact("Chotkiy paza ", "+380530542116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
+        products.add(new Contact("Narmalno ", "+380939542116","Drogobich","4.11","Friends",R.drawable.man_4));
+        products.add(new Contact("Product ", "+380930562116","New York","23.03","Friends",R.drawable.boy));
+        products.add(new Contact("Jhon Smith", "+380943542116","Selo","6.09","Relatives",R.drawable.boy_1));
+        products.add(new Contact("David Tenant", "+380967542116","Kyiv","5.15","Classmates",R.drawable.girl));
+        products.add(new Contact("Sergey", "+380930872116","Striy","7.09","Coworkers",R.drawable.girl_1));
+        products.add(new Contact("David ", "+380934532116","Moldova","6.01","Friends",R.drawable.man));
+        products.add(new Contact("Akakiy ", "+380956742116","Moscow","1.01","Coworkers",R.drawable.man_1));
+        products.add(new Contact("Krasava Vashe ", "+3809510542116","Minsk","6.5","Classmates",R.drawable.man_2));
+        products.add(new Contact("Chotkiy paza ", "+380939142116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
+        products.add(new Contact("Narmalno ", "+380930442716","Drogobich","4.11","Friends",R.drawable.man_4));
 
 
     }
