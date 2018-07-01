@@ -1,61 +1,71 @@
 package com.truedevel.novatema2;
 
 import android.app.AlertDialog;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.truedevel.novatema2.room.App;
+import com.truedevel.novatema2.room.ContactRepository;
 import com.truedevel.novatema2.room.ContactViewModel;
+import com.truedevel.novatema2.room.core.ContactDao;
+import com.truedevel.novatema2.room.core.Database;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class  MainActivity extends AppCompatActivity {
 
 
-    static ArrayList<Contact> products = new ArrayList<Contact>();
-    static ArrayList groups = new ArrayList();
+    static ArrayList<Contact> products = new ArrayList<>();
+    static ArrayList<String> groups = new ArrayList<>();
     BoxAdapter boxAdapter;
     String name,phone;
     ContactViewModel mRoomModule;
     MainActivity x;
     ListView lvMain;
-    ImageButton btn_add;
-    ImageButton btn_edit;
-    ImageButton btn_del;
-    public long id_contact;
-    public int position_contact;
      AlertDialog.Builder alert;
-    Contact old;
     int secondActivityID = 2;
+    ContactDao contactDao;
+    Database db;
+    ArrayList<Contact> ar = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // создаем адаптер
-        fillData();
-        boxAdapter = new BoxAdapter(this, products);
-
         mRoomModule = ViewModelProviders.of(this).get(ContactViewModel.class);
-        mRoomModule.getmRepository().insertEndMethod(products);
+        lvMain = findViewById(R.id.lvMain);
+
+
+        mRoomModule.getmRepository().getmAllContacts().observeForever(new Observer<List<Contact>>() {
+            @Override
+            public void onChanged(@Nullable List<Contact> contacts) {
+                products.clear();
+                products.addAll(contacts);
+                boxAdapter = new BoxAdapter(getBaseContext(), products);
+                lvMain.setAdapter(boxAdapter);
+            }
+        });
+
+//      fillData();
+        filldata_always();
 
         // настраиваем список
-        lvMain = findViewById(R.id.lvMain);
-        lvMain.setAdapter(boxAdapter);
 
         // генерируем данные для адаптера
         groups.add("Relatives");
@@ -66,11 +76,12 @@ public class MainActivity extends AppCompatActivity {
         x = this;
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab =  findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+//                ar.add(new Contact("sdfs", "sds7d5","sdsd","fgdf","we",231));
+//                mRoomModule.getmRepository().insertEndMethod(ar);
                 alert = new AlertDialog.Builder(x);
                 LinearLayout lila1 = new LinearLayout(x);
                 lila1.setOrientation(LinearLayout.VERTICAL); //1 is for vertical orientation
@@ -110,23 +121,30 @@ public class MainActivity extends AppCompatActivity {
 
                 alert.setTitle("Add contact");
 
-                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        name = input.getText().toString();
-                        phone = input1.getText().toString();
-                        String ad = input2.getText().toString();
-                        String birth = input3.getText().toString();
-                        String group = input4.getText().toString();
-                        ArrayList ar = new ArrayList();
-                        ar.add(new Contact(name, phone,ad,birth,group,R.drawable.man_2));
-                        mRoomModule.getmRepository().insertEndMethod(ar);
-                        boxAdapter.notifyDataSetChanged();
-                        Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
-                    }
+                alert.setPositiveButton("Ok", (dialog, whichButton) -> {
+                    name = input.getText().toString();
+                    phone = input1.getText().toString();
+                    String ad = input2.getText().toString();
+                    String birth = input3.getText().toString();
+                    String group = input4.getText().toString();
+                    ar.add(new Contact(name, phone,ad,birth,group,R.drawable.man_3));
+                    mRoomModule.getmRepository().insertEndMethod(ar);
+                    mRoomModule.getmRepository().getmAllContacts().observeForever(contacts -> {
+                        products.clear();
+                        products.addAll(contacts);
+                        boxAdapter = new BoxAdapter(getBaseContext(), products);
+                        lvMain.setAdapter(boxAdapter);
+                    });
+                    products.addAll(ar);
+                    ar.clear();
+                    boxAdapter.notifyDataSetChanged();
+                    Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
+
                 });
                 alert.setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
+
                                 dialog.cancel();
                             }
                         });
@@ -134,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 alert.show();
             }
         });
+
         lvMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -157,6 +176,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     void fillData() {
+//      try{  products.addAll(mRoomModule.getmRepository().getmAllContacts().); } catch(NullPointerException e){
+//          Toast.makeText(this,"Exception",Toast.LENGTH_SHORT).show();
+//      }
         products.add(new Contact("Product ", "+380930542117","New York","23.03","Friends",R.drawable.boy));
         products.add(new Contact("Jhon Smith", "+380930542118","Selo","6.09","Relatives",R.drawable.boy_1));
         products.add(new Contact("David Tenant", "+380930542119","Kyiv","5.15","Classmates",R.drawable.girl));
@@ -166,26 +188,14 @@ public class MainActivity extends AppCompatActivity {
         products.add(new Contact("Krasava Vashe ", "+380930542113","Minsk","6.5","Classmates",R.drawable.man_2));
         products.add(new Contact("Chotkiy paza ", "+380930542114","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
         products.add(new Contact("Narmalno ", "+380930542115","Drogobich","4.11","Friends",R.drawable.man_4));
-        products.add(new Contact("Product ", "+380930542116","New York","23.03","Friends",R.drawable.boy));
-        products.add(new Contact("Jhon Smith", "+380930542126","Selo","6.09","Relatives",R.drawable.boy_1));
-        products.add(new Contact("David Tenant", "+380930542136","Kyiv","5.15","Classmates",R.drawable.girl));
-        products.add(new Contact("Sergey", "+380930542146","Striy","7.09","Coworkers",R.drawable.girl_1));
-        products.add(new Contact("David ", "+380930542156","Moldova","6.01","Friends",R.drawable.man));
-        products.add(new Contact("Akakiy ", "+380930542616","Moscow","1.01","Coworkers",R.drawable.man_1));
-        products.add(new Contact("Krasava Vashe ", "+380930742116","Minsk","6.5","Classmates",R.drawable.man_2));
-        products.add(new Contact("Chotkiy paza ", "+380530542116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
-        products.add(new Contact("Narmalno ", "+380939542116","Drogobich","4.11","Friends",R.drawable.man_4));
-        products.add(new Contact("Product ", "+380930562116","New York","23.03","Friends",R.drawable.boy));
-        products.add(new Contact("Jhon Smith", "+380943542116","Selo","6.09","Relatives",R.drawable.boy_1));
-        products.add(new Contact("David Tenant", "+380967542116","Kyiv","5.15","Classmates",R.drawable.girl));
-        products.add(new Contact("Sergey", "+380930872116","Striy","7.09","Coworkers",R.drawable.girl_1));
-        products.add(new Contact("David ", "+380934532116","Moldova","6.01","Friends",R.drawable.man));
-        products.add(new Contact("Akakiy ", "+380956742116","Moscow","1.01","Coworkers",R.drawable.man_1));
-        products.add(new Contact("Krasava Vashe ", "+3809510542116","Minsk","6.5","Classmates",R.drawable.man_2));
-        products.add(new Contact("Chotkiy paza ", "+380939142116","Gus-Chrustalnoe","8.07","Relatives",R.drawable.man_3));
-        products.add(new Contact("Narmalno ", "+380930442716","Drogobich","4.11","Friends",R.drawable.man_4));
+//        contactDao.insert(new Contact("Sergey", "+380930542110","Striy","7.09","Coworkers",R.drawable.girl_1));
+        mRoomModule.getmRepository().insertEndMethod(products);
 
-
+    }
+    void filldata_always(){
+        ArrayList local = new ArrayList();
+        local.add(new Contact("Narmalno ", "+380930542115","Drogobich","4.11","Friends",R.drawable.man_4));
+        mRoomModule.getmRepository().insertEndMethod(local);
     }
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(resultCode == RESULT_OK){
@@ -200,12 +210,18 @@ public class MainActivity extends AppCompatActivity {
                 int new_photo = products.get(ar).avatar;
 
                 if(new_name!=null & new_phone!=null){
+
                     products.set(ar,new Contact(new_name,new_phone,new_ad,new_date,new_gr,new_photo));
+                    mRoomModule.getmRepository().clearAll();
+                    mRoomModule.getmRepository().insertEndMethod(products);
                 } else {
-                    products.remove(ar);
+                    mRoomModule.getmRepository().delete(products.get(ar));
+                  //  products.remove(ar);
+                   // mRoomModule.getmRepository().clearAll();
+                   // mRoomModule.getmRepository().insertEndMethod(products);
+
                 }
                     boxAdapter.notifyDataSetChanged();
-
             }
         }
     }

@@ -8,19 +8,52 @@
     android:elevation="4dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/avatar_tool"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_launcher_foreground" />
+        <ImageView
+            android:id="@+id/avatar_tool"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_launcher_foreground" />
 
-    <TextView
-        android:id="@+id/name_toolbar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="Did you know"
-        android:textColor="@android:color/white"
-        android:textSize="24dp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/name_toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="5dp"
+                android:text="Did you know"
+                android:textColor="@android:color/white"
+                android:textSize="24dp" />
+
+
+            <TextView
+                android:id="@+id/phone_toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="+380951722759"
+                android:textColor="@android:color/white"
+                android:textSize="14dp" />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_call"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical|end"
+            app:srcCompat="@drawable/truba" />
+    </LinearLayout>
 </android.support.v7.widget.Toolbar>

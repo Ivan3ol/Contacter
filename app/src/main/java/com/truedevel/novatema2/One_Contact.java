@@ -29,14 +29,25 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class One_Contact extends AppCompatActivity {
     String phone;
     String fullname;
     int id_contact,ava;
-    TextView  tv2, tvAdress, tvBirth,tvGroup,name_tool;
-    ImageView btn_send,btn_call,ava_tool;
+    TextView name_tool;
+    ImageView btn_send,ava_tool;
     public AlertDialog.Builder alert;
     One_Contact x = this;
     Contact old;
@@ -49,7 +60,7 @@ public class One_Contact extends AppCompatActivity {
     ArrayAdapter<String> adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one__contact);
         Bundle extras = getIntent().getExtras();
@@ -63,39 +74,54 @@ public class One_Contact extends AppCompatActivity {
         ava = extras.getInt("ava");
         id_contact = extras.getInt("idcon");
 
-        tvAdress = findViewById(R.id.Address);
-        tvBirth = findViewById(R.id.Birthday);
-        tvGroup = findViewById(R.id.Group);
 
-        tv2 = findViewById(R.id.textViewPhone);
+
         ava_tool = findViewById(R.id.avatar_tool);
         name_tool = findViewById(R.id.name_toolbar);
-
+       ImageView call = findViewById(R.id.btn_call);
         messages = findViewById(R.id.messages);
 
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, mess);
         messages.setAdapter(adapter);
 
-        tv2.setText(phone);
-        tvAdress.setText(adress);
-        tvBirth.setText(date);
-        tvGroup.setText(group);
-        btn_call = findViewById(R.id.CallButton);
+        call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                makeCall(view);
+            }
+        });
+
+
 
         message = findViewById(R.id.input_message);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(x, Contact_Info.class);
+                i.putExtra("name",fullname);
+                i.putExtra("phonenumber",  phone);
+                i.putExtra("adr", adress);
+                i.putExtra("birth",  date);
+                i.putExtra("gr",  group);
+                i.putExtra("ava",  ava);
+                i.putExtra("idcon",  id_contact);
+                startActivity(i);
+            }
+        });
         ava_tool.setImageResource(ava);
         name_tool.setText(fullname);
-
         btn_send = findViewById(R.id.ImageViewSend);
-       btn_send.setOnClickListener(new View.OnClickListener() {
+        btn_send.setOnClickListener(new View.OnClickListener()  {
 
             @Override
             public void onClick(View v) {
-                SendMess(message.getText().toString());
+                try {
+                    SendMess(message.getText().toString());
+                }catch(Exception e){}
             }
         });
 
@@ -112,71 +138,28 @@ public class One_Contact extends AppCompatActivity {
 
         startActivity(callIntent);
     }
-    void SendMess(String msg) {
+    void SendMess(String msg) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
         Intent myIntent = new Intent(Intent.ACTION_SEND);
         myIntent.setType("text/plain");
         mess.add(msg);
         adapter.notifyDataSetChanged();
-        msg = encode(msg);
-        myIntent.putExtra(Intent.EXTRA_TEXT, msg);
+        byte [] msgByte = encode(msg);
+        String returnToString = new String(msgByte);
+        myIntent.putExtra(Intent.EXTRA_TEXT, returnToString);
         startActivity(myIntent);
     }
-    static String encode(String s) {
-        int bitLength = s.length() * 8;
-        int keyLength = 32 - Integer.numberOfLeadingZeros(bitLength);
-        int key = 0;
-        int phaze = 0b1;
-        String result = "";
-
-
-        switch (keyLength) {
-            case 4:
-                key = 0b1100;
-                break;
-            case 5:
-                key = 0b10100;
-                break;
-            case 6:
-                key = 0b110000;
-                break;
-            case 7:
-                key = 0b1100000;
-                break;
-            case 8:
-            case 9:
-                key = 0b100010000;
-                break;
-            case 10:
-                key = 0b1001000000;
-                break;
-        }
-
-        for (int i = 0; i < s.length(); i++) {
-            int z = 0;
-            char ch = s.charAt(i);
-
-            for (int j = 0; j < 8; j++) {
-                int temp = phaze & key;
-
-                for (int k = 0; k < keyLength; k++) {
-                    z += temp % 2;
-                    temp /= 2;
-                }
-                z %= 2;
-                phaze *= 2;
-                phaze += z;
-            }
-            result += ((char) (ch ^ phaze));
-        }
-        return result;
+    //ENCODE CIPHER
+    static byte[] encode(String s) throws InvalidAlgorithmParameterException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
+        byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        IvParameterSpec ivspec = new IvParameterSpec(iv);
+        Cipher cipherEn = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        SecretKeySpec Skey = new SecretKeySpec("SOMEkEyPasS2L4cQ".getBytes(), "AES");
+        cipherEn.init(Cipher.ENCRYPT_MODE, Skey, ivspec);
+        byte[] encoded = cipherEn.doFinal(s.getBytes());
+        return encoded;
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }
-    @Override
+
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.item_edit :
@@ -263,13 +246,12 @@ public class One_Contact extends AppCompatActivity {
                  alert.show();
                  Toast.makeText(getApplicationContext(), "Delete", Toast.LENGTH_SHORT).show();
              break;
+            case R.id.item_call :
+                makeCall(item);
+                break;
         }
         return true;
-    }
-
-
-
-
+    }*/
 }
 
 

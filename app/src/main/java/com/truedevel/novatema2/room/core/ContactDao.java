@@ -13,8 +13,10 @@ import java.util.List;
 
 @Dao
 public interface ContactDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert()
     void insertAllContacts(List<Contact> people);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insert(Contact contact);
     @Update
     void update(Contact contact);
     @Delete
@@ -22,4 +24,11 @@ public interface ContactDao {
 
     @Query("SELECT * FROM Contacts")
     LiveData<List<Contact>> getAll();
+
+    @Query("SELECT * FROM Contacts WHERE phone = :phone")
+    Contact getByPhone(String phone);
+
+    @Query("DELETE FROM Contacts WHERE phone = :phone")
+    void  deleteByPhone(String phone);
+
 }
